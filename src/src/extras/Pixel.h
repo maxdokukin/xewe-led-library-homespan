@@ -366,12 +366,12 @@ class WS2801_LED {
   private:
     uint8_t dataPin;
     uint8_t clockPin;
-    // uint32_t dataMask;
-    // uint32_t clockMask;
-    // volatile uint32_t *dataSetReg;
-    // volatile uint32_t *dataClearReg;
-    // volatile uint32_t *clockSetReg;
-    // volatile uint32_t *clockClearReg;
+    uint32_t dataMask;
+    uint32_t clockMask;
+    volatile uint32_t *dataSetReg;
+    volatile uint32_t *dataClearReg;
+    volatile uint32_t *clockSetReg;
+    volatile uint32_t *clockClearReg;
     void transmit(Color *c, size_t nPixels, boolean multiColor);                            // transmits Colors to the LED strand; setting multiColor to false repeats Color in c[0] for all nPixels
 
   public:
