@@ -248,40 +248,12 @@ void Dot::transmit(Color *c, size_t nPixels, boolean multiColor){
 
 WS2801_LED::WS2801_LED(uint8_t dataPin, uint8_t clockPin){
 
-  this->dataPin=dataPin;
-  this->clockPin=clockPin;
-
-  pinMode(dataPin,OUTPUT);
-  pinMode(clockPin,OUTPUT);
-  digitalWrite(dataPin,LOW);
-  digitalWrite(clockPin,LOW);
-
-  delay(1);  // ensure clock pin is in low state for 1ms to reset latching and prepare for incoming data whenever transmitted
-
-  dataMask=1<<(dataPin%32);
-  clockMask=1<<(clockPin%32);
-
-#if defined(CONFIG_IDF_TARGET_ESP32C3)
-  #define OUT_W1TS  &GPIO.out_w1ts.val
-  #define OUT_W1TC  &GPIO.out_w1tc.val
-  #define OUT1_W1TS  NULL
-  #define OUT1_W1TC  NULL
-#elif defined(CONFIG_IDF_TARGET_ESP32C6) || defined(CONFIG_IDF_TARGET_ESP32C5)
-  #define OUT_W1TS  &GPIO.out_w1ts.val
-  #define OUT_W1TC  &GPIO.out_w1tc.val
-  #define OUT1_W1TS  &GPIO.out1_w1ts.val
-  #define OUT1_W1TC  &GPIO.out1_w1tc.val
-#else
-  #define OUT_W1TS  &GPIO.out_w1ts
-  #define OUT_W1TC  &GPIO.out_w1tc
-  #define OUT1_W1TS  &GPIO.out1_w1ts.val
-  #define OUT1_W1TC  &GPIO.out1_w1tc.val
-#endif
-
-  dataSetReg=     dataPin<32 ? (OUT_W1TS) : (OUT1_W1TS);
-  dataClearReg=   dataPin<32 ? (OUT_W1TC) : (OUT1_W1TC);
-  clockSetReg=    clockPin<32 ? (OUT_W1TS) : (OUT1_W1TS);
-  clockClearReg=  clockPin<32 ? (OUT_W1TC) : (OUT1_W1TC);
+  buscfg.mosi_io_num=dataPin;
+  buscfg.sclk_io_num=clockPin;
+  
+  devcfg.clock_speed_hz = 2 * 1000 * 1000;
+  devcfg.spics_io_num = -1;
+  devcfg.queue_size=1;
 }
 
 ///////////////////
@@ -291,40 +263,15 @@ void WS2801_LED::transmit(Color *c, size_t nPixels, boolean multiColor){
   if(nPixels==0)
     return;
   
+  spi_bus_initialize(SPI2_HOST, &buscfg, SPI_DMA_CH_AUTO);
   delay(1);
-
-  SPI.begin(clockPin,-1,dataPin,-1);
-  SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
-//  SPI.writeBytes((uint8_t *)c, nPixels*3);
-
-  for(int i=0;i<nPixels;i++,c+=multiColor){
-    for(int j=0;j<3;j++)
-      SPI.write(c->col[j]);
-  }
-
-  SPI.endTransaction();
-  SPI.end();
-
-  delay(1);
+  spi_bus_add_device(SPI2_HOST, &devcfg, &spi);
+  trans.length=nPixels*24;
+  trans.tx_buffer=c;
+  spi_device_transmit(spi,&trans);
+  spi_bus_remove_device(spi);
+  spi_bus_free(SPI2_HOST);
   return;
-
-   for(int i=0;i<nPixels;i++){
-     for(int j=0;j<3;j++){
-       for(int b=7;b>=0;b--){
-         if((c->col[j]>>b)&1)
-           *dataSetReg=dataMask;
-         else
-           *dataClearReg=dataMask;
- //        delayMicroseconds(100);
-         *clockSetReg=clockMask;
- //        delayMicroseconds(100);
-         *clockClearReg=clockMask;
-       }
-     }
-     c+=multiColor;
-   }
-
-  delay(1);   // time for latching and reset to get ready for next data transmit
 }
 
 ////////////////////////////////////////////

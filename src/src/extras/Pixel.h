@@ -41,7 +41,7 @@
 #include <hal/rmt_ll.h>         // where low-level RMT calls are defined
 
 #include <soc/gpio_struct.h>
-#include <SPI.h>
+#include "driver/spi_master.h"
 
 [[maybe_unused]] static const char* PIXEL_TAG = "Pixel";
 
@@ -364,14 +364,27 @@ class WS2801_LED {
     }; // Color
 
   private:
-    uint8_t dataPin;
-    uint8_t clockPin;
-    uint32_t dataMask;
-    uint32_t clockMask;
-    volatile uint32_t *dataSetReg;
-    volatile uint32_t *dataClearReg;
-    volatile uint32_t *clockSetReg;
-    volatile uint32_t *clockClearReg;
+    spi_bus_config_t buscfg = {
+      .mosi_io_num = -1,
+      .miso_io_num = -1,
+      .sclk_io_num = -1,
+      .data2_io_num = -1,
+      .data3_io_num = -1,
+      .data4_io_num = -1,
+      .data5_io_num = -1,
+      .data6_io_num = -1,
+      .data7_io_num = -1,
+      .data_io_default_level = 0,
+      .max_transfer_sz = 0,
+      .flags=0,
+      .isr_cpu_id = ESP_INTR_CPU_AFFINITY_AUTO,
+      .intr_flags = 0
+    };
+
+    spi_device_interface_config_t devcfg = {};
+    spi_transaction_t trans = {};
+    spi_device_handle_t spi;
+
     void transmit(Color *c, size_t nPixels, boolean multiColor);                            // transmits Colors to the LED strand; setting multiColor to false repeats Color in c[0] for all nPixels
 
   public:
