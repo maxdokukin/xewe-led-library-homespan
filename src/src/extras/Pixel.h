@@ -42,6 +42,7 @@
 
 #include <soc/gpio_struct.h>
 #include "driver/spi_master.h"
+#include "esp_private/spi_common_internal.h"
 
 [[maybe_unused]] static const char* PIXEL_TAG = "Pixel";
 

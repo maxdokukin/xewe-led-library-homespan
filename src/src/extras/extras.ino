@@ -40,8 +40,8 @@ void setup() {
   delay(2000);
   Serial.printf("\n\nReady %d %d\n",F14,F22);
 
-  p1=new WS2801_LED(F14, F22);
   p2=new WS2801_LED(F27, F23);
+  p1=new WS2801_LED(F14, F22);
 
   p1->setSPI(SPI3_HOST);
 

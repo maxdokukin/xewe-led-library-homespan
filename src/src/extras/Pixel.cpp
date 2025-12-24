@@ -256,12 +256,16 @@ WS2801_LED::WS2801_LED(uint8_t dataPin, uint8_t clockPin){
   devcfg.queue_size=1;
 
   #if defined(CONFIG_IDF_TARGET_ESP32)
-    setSPI(SPI2_HOST);
+    setSPI(SPI3_HOST);
   #elif defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32S3)
     setSPI(SPI3_HOST);
   #else
     setSPI(SPI2_HOST);
-  #endif  
+  #endif
+
+  spi_bus_initialize(spiHost, &buscfg, SPI_DMA_CH_AUTO);
+  delay(1);
+  spi_bus_add_device(spiHost, &devcfg, &spi);
 }
 
 ///////////////////
@@ -278,15 +282,20 @@ void WS2801_LED::transmit(Color *c, size_t nPixels, boolean multiColor){
   
   if(nPixels==0)
     return;
-  
-  spi_bus_initialize(spiHost, &buscfg, SPI_DMA_CH_AUTO);
+
+
+  spicommon_bus_initialize_io(spiHost, &buscfg, SPICOMMON_BUSFLAG_MASTER, NULL);
   delay(1);
-  spi_bus_add_device(spiHost, &devcfg, &spi);
+
+//  spi_bus_initialize(spiHost, &buscfg, SPI_DMA_CH_AUTO);
+//  delay(1);
+//  spi_bus_add_device(spiHost, &devcfg, &spi);
   trans.length=nPixels*24;
   trans.tx_buffer=c;
   spi_device_transmit(spi,&trans);
-  spi_bus_remove_device(spi);
-  spi_bus_free(spiHost);
+//  spi_bus_remove_device(spi);
+//  spi_bus_free(spiHost);
+  spicommon_bus_free_io_cfg(&buscfg);
   return;
 }
 
