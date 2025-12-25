@@ -246,7 +246,18 @@ void Dot::transmit(Color *c, size_t nPixels, boolean multiColor){
 //          Two-Wire RGB WS2801           //
 ////////////////////////////////////////////
 
-WS2801_LED::WS2801_LED(uint8_t dataPin, uint8_t clockPin){
+WS2801_LED::WS2801_LED(uint8_t dataPin, uint8_t clockPin, spi_host_device_t host){
+
+  if(host==SPI1_HOST)
+    #if defined(CONFIG_IDF_TARGET_ESP32)
+      spiHost=SPI2_HOST;
+    #elif defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32S3)
+      spiHost=SPI3_HOST;
+    #else
+      spiHost=SPI2_HOST;
+  #endif
+  else
+    spiHost=host;
 
   buscfg.mosi_io_num=dataPin;
   buscfg.sclk_io_num=clockPin;
@@ -255,25 +266,9 @@ WS2801_LED::WS2801_LED(uint8_t dataPin, uint8_t clockPin){
   devcfg.spics_io_num = -1;
   devcfg.queue_size=1;
 
-  #if defined(CONFIG_IDF_TARGET_ESP32)
-    setSPI(SPI3_HOST);
-  #elif defined(CONFIG_IDF_TARGET_ESP32S2) || defined(CONFIG_IDF_TARGET_ESP32S3)
-    setSPI(SPI3_HOST);
-  #else
-    setSPI(SPI2_HOST);
-  #endif
-
-  spi_bus_initialize(spiHost, &buscfg, SPI_DMA_CH_AUTO);
-  delay(1);
+  if(spi_bus_get_attr(spiHost)==NULL)
+    spi_bus_initialize(spiHost, &buscfg, SPI_DMA_CH_AUTO);
   spi_bus_add_device(spiHost, &devcfg, &spi);
-}
-
-///////////////////
-
-void WS2801_LED::setSPI(spi_host_device_t host){
-  
-  if(host!=SPI1_HOST)
-    spiHost=host;
 }
 
 ///////////////////
@@ -283,22 +278,16 @@ void WS2801_LED::transmit(Color *c, size_t nPixels, boolean multiColor){
   if(nPixels==0)
     return;
 
-
+  spi_device_acquire_bus(spi,portMAX_DELAY);
   spicommon_bus_initialize_io(spiHost, &buscfg, SPICOMMON_BUSFLAG_MASTER, NULL);
   delay(1);
-
-//  spi_bus_initialize(spiHost, &buscfg, SPI_DMA_CH_AUTO);
-//  delay(1);
-//  spi_bus_add_device(spiHost, &devcfg, &spi);
   trans.length=nPixels*24;
   trans.tx_buffer=c;
   spi_device_transmit(spi,&trans);
-//  spi_bus_remove_device(spi);
-//  spi_bus_free(spiHost);
   spicommon_bus_free_io_cfg(&buscfg);
+  spi_device_release_bus(spi);
   return;
 }
 
 ////////////////////////////////////////////
 
-spi_host_device_t WS2801_LED::spiHost;

@@ -179,7 +179,6 @@ struct WS2801_RGB : Service::LightBulb {      // Addressable two-wire RGB WS2801
 
     V.setRange(5,100,1);                        // sets the range of the Brightness to be from a min of 5%, to a max of 100%, in steps of 1%
     pixel=new WS2801_LED(dataPin, clockPin);    // creates WS2801 RGB LED on specified pins
-    WS2801_LED::setSPI(SPI3_HOST);
     this->nPixels=nPixels;                      // save number of Pixels in this LED Strand
     
     colors=(WS2801_LED::Color *)heap_caps_calloc(nPixels,sizeof(WS2801_LED::Color),MALLOC_CAP_DMA);

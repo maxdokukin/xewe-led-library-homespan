@@ -40,10 +40,8 @@ void setup() {
   delay(2000);
   Serial.printf("\n\nReady %d %d\n",F14,F22);
 
-  p2=new WS2801_LED(F27, F23);
   p1=new WS2801_LED(F14, F22);
-
-  p1->setSPI(SPI3_HOST);
+  p2=new WS2801_LED(F27, F23);
 
   red=(WS2801_LED::Color *)heap_caps_calloc(25,sizeof(WS2801_LED::Color),MALLOC_CAP_DMA);   
   blue=(WS2801_LED::Color *)heap_caps_calloc(25,sizeof(WS2801_LED::Color),MALLOC_CAP_DMA);   
@@ -57,9 +55,9 @@ void setup() {
 
 void loop() {
   p1->set(red,25);
+  delay(1000);
   p2->set(green,25);
   delay(1000);
   p1->set(blue,25);
-  p2->set(green,25);
   delay(1000);    
 }
