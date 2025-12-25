@@ -172,7 +172,7 @@ struct WS2801_RGB : Service::LightBulb {      // Addressable two-wire RGB WS2801
   Characteristic::Saturation S{0,true};
   Characteristic::Brightness V{100,true};
   WS2801_LED *pixel;
-  WS2801_LED::Color *colors;
+//  WS2801_LED::Color *colors;
   int nPixels;
   
   WS2801_RGB(uint8_t dataPin, uint8_t clockPin, int nPixels) : Service::LightBulb(){
@@ -181,7 +181,7 @@ struct WS2801_RGB : Service::LightBulb {      // Addressable two-wire RGB WS2801
     pixel=new WS2801_LED(dataPin, clockPin);    // creates WS2801 RGB LED on specified pins
     this->nPixels=nPixels;                      // save number of Pixels in this LED Strand
     
-    colors=(WS2801_LED::Color *)heap_caps_calloc(nPixels,sizeof(WS2801_LED::Color),MALLOC_CAP_DMA);
+//    colors=(WS2801_LED::Color *)heap_caps_calloc(nPixels,sizeof(WS2801_LED::Color),MALLOC_CAP_DMA);
     
     update();                                   // manually call update() to set pixel with restored initial values
   }
@@ -194,10 +194,12 @@ struct WS2801_RGB : Service::LightBulb {      // Addressable two-wire RGB WS2801
     float s=S.getNewVal<float>();       // range = [0,100]
     float v=V.getNewVal<float>();       // range = [0,100]
 
-    for(int i=0;i<nPixels;i++)
-      colors[i].HSV(h*p, s*p, v*p);
+//    for(int i=0;i<nPixels;i++)
+//      colors[i].HSV(h*p, s*p, v*p);
 
-    pixel->set(colors,nPixels);         // sets nPixels to Colors stored in colors array
+//    pixel->set(colors,nPixels);         // sets nPixels to Colors stored in colors array
+
+    pixel->set(pixel->HSV(h*p, s*p, v*p),nPixels);
           
     return(true);  
   }
