@@ -391,6 +391,7 @@ class WS2801_LED {
 
   public:
     WS2801_LED(uint8_t dataPin, uint8_t clockPin, spi_host_device_t = SPI1_HOST);           // creates addressable two-wire LED connected to dataPin and clockPin usig the WS2801 protocol
+    void setTiming(uint32_t freq);                                                          // change SPI clock frequency from 2MHz default to freq for this LED
     void set(Color *c, size_t nPixels){transmit(c,nPixels,true);}                           // sets colors of nPixels based on array of Colors c
   //  void set(Color c, size_t nPixels=1){transmit(&c,nPixels,false);}                        // sets color of nPixels to be equal to specific Color c
     

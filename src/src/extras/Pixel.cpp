@@ -273,6 +273,14 @@ WS2801_LED::WS2801_LED(uint8_t dataPin, uint8_t clockPin, spi_host_device_t host
 
 ///////////////////
 
+void WS2801_LED::setTiming(uint32_t freq){
+  devcfg.clock_speed_hz=freq;
+  spi_bus_remove_device(spi);
+  spi_bus_add_device(spiHost, &devcfg, &spi);
+}
+
+///////////////////
+
 void WS2801_LED::transmit(Color *c, size_t nPixels, boolean multiColor){
   
   if(nPixels==0)
