@@ -27,38 +27,30 @@
 
 #include "Pixel.h"
 
-WS2801_LED *p1;
-WS2801_LED *p2;
+// TEST OF TWO WS2801 STRANDS
 
-WS2801_LED::Color *red;
-WS2801_LED::Color *blue;
-WS2801_LED::Color *green;
+//WS2801_LED *p1;
+//WS2801_LED *p2;
 
 void setup() {
 
   Serial.begin(115200);
   delay(2000);
-  Serial.printf("\n\nReady %d %d\n",F14,F22);
+  Serial.printf("\n\nReady\n");
 
-  p1=new WS2801_LED(F14, F22);
-  p2=new WS2801_LED(F27, F23);
+  WS2801_LED p1(F14, F22);
+  WS2801_LED p2(F27, F23);
 
-  red=WS2801_LED::getMem(25);
-  blue=p1->getMem(25);
-  green=p1->getMem(25);
-
-  for(int i=0;i<25;i++){
-    red[i].RGB(255,0,0);
-    blue[i].RGB(0,0,255);
-    green[i].RGB(0,128,0);
+  while(1){
+    p1.set(p1.RGB(255,0,0),24);
+    p2.set(p2.RGB(0,255,0));
+    delay(1000);
+    p1.set(p1.RGB(0,255,0),24);
+    p2.set(p2.RGB(255,0,0));
+    delay(1000);
   }
+
 }
 
 void loop() {
-  p1->set(red,25);
-  delay(1000);
-  p2->set(green,25);
-  delay(1000);
-  p1->set(WS2801_LED::RGB(255,255,0),1300);
-  delay(1000);    
 }
