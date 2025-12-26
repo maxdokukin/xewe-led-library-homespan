@@ -269,6 +269,9 @@ WS2801_LED::WS2801_LED(uint8_t dataPin, uint8_t clockPin, spi_host_device_t host
   if(spi_bus_get_attr(spiHost)==NULL)
     spi_bus_initialize(spiHost, &buscfg, SPI_DMA_CH_AUTO);
   spi_bus_add_device(spiHost, &devcfg, &spi);
+
+  gpioReset.pin_bit_mask=(1ULL<<dataPin | 1ULL<<clockPin);
+  gpioReset.pull_down_en=GPIO_PULLDOWN_ENABLE;  
 }
 
 ///////////////////
@@ -313,7 +316,7 @@ void WS2801_LED::transmit(Color *c, size_t nPixels){
   trans.length=nPixels*24;
   trans.tx_buffer=c;
   spi_device_transmit(spi,&trans);
-  spicommon_bus_free_io_cfg(&buscfg);
+  gpio_config(&gpioReset);
   spi_device_release_bus(spi);
   return;
 }

@@ -43,7 +43,7 @@ void setup() {
   //   p2.set(p2.RGB(0,255,0));
   //   delay(1000);
   //   p1.set(p1.RGB(0,255,0),24);
-  //   p2.set(p2.RGB(255,0,0));
+  //   p2.set(p2.RGB(0,0,255));
   //   delay(1000);
   // }
 

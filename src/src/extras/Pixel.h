@@ -386,6 +386,7 @@ class WS2801_LED {
     spi_device_interface_config_t devcfg = {};
     spi_transaction_t trans = {};
     spi_device_handle_t spi;
+    gpio_config_t gpioReset = {};
 
     void transmit(Color *c, size_t nPixels);                                                // transmits Colors to the LED strand
 
