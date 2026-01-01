@@ -27,17 +27,26 @@
 
 #include "Pixel.h"
 
-Pixel p(1, "GRBW");
-Pixel::Color empty[7]={};
-Pixel::Color colors[7]={Pixel::RGB(0, 50, 0),  Pixel::RGB(50, 50, 0), Pixel::RGB(50, 0, 0) ,Pixel::RGB(0, 0, 0), Pixel::RGB(0, 0, 255), Pixel::RGB(0,0,0), Pixel::RGB(0,0,0,255)};
+// TEST OF TWO WS2801 STRANDS
 
 void setup() {
-  for(int i=0;i<5;i++){
-    p.set(colors, 7);
+
+  Serial.begin(115200);
+  delay(2000);
+  Serial.printf("\n\nReady\n");
+
+  WS2801_LED p1(F14, F22);
+  WS2801_LED p2(F4, F21);
+
+  while(1){
+    p1.set(p1.RGB(255,0,0),25);
+    p2.set(p2.RGB(0,255,0));
     delay(1000);
-    p.set(empty, 7);
-    delay(1000);    
+    p1.set(p1.RGB(0,0,0),25);
+    p2.set(p2.RGB(0,0,255));
+    delay(1000);
   }
+
 }
 
 void loop() {

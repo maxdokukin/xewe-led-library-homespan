@@ -8,10 +8,10 @@ HomeSpan provides a microcontroller-focused implementation of Apple's HomeKit Ac
 
 |Component | Requirement | See Note |
 |---|:---:|:---:|
-|Current HomeSpan Production Release | **2.1.6** | - |
+|Current HomeSpan Production Release | **2.1.7** | - |
 | Supported Chips | **ESP32, S2, S3, C3, C5, and C6** | [^8266] |
-| Minimum Required [Arduino-ESP32 Core](https://github.com/espressif/arduino-esp32) | **3.1.0** | [^fail] |
-| Latest Core fully tested with HomeSpan | **3.3.4** | [^tested] |
+| Minimum Required [Arduino-ESP32 Core](https://github.com/espressif/arduino-esp32) | **3.3.0** | [^fail] |
+| Latest Core fully tested with HomeSpan | **3.3.2** | [^tested] |
 | Minimum Flash Partition Size | **1.9MB** | - |
 | Recommended Partition Scheme | **Minimal SPIFFS (1.9MB APP with OTA)** | [^partition] |
 | HomeKit Hub | **HomePod or Apple TV** | [^homehub] |
@@ -71,31 +71,23 @@ HomeSpan provides a microcontroller-focused implementation of Apple's HomeKit Ac
   * Launch the WiFi Access Point
 * A standalone, detailed End-User Guide
 
-## ❗Latest Update - HomeSpan 2.1.6 (26 Oct 2025)
+## ❗Latest Update - HomeSpan 2.1.7 (1 Jan 2026 - Happy New Year)
 
 ### New Features
 
-* **HomeSpan now supports the ESP32-C5!**
-
-  * the ESP32-C5 has the ability to use both the **5.0 GHz** and **2.4 GHz** WiFi bands 
-    * added WiFi band information to all log file output to indicate which band is being used
-  * to require the ESP-C5 to use the 5.0 GHz band, add the following to the `setup()` function in your sketch:
-    * `WiFi.STA.begin(); WiFi.setBandMode(WIFI_BAND_MODE_5G_ONLY);`
-    * note: `setBandMode()` is only available in Arduino-ESP32 Core 3.3.0 or greater
-  * see [WiFi and Ethernet Connectivity](docs/Networks.md) for details
+* **HomeSpan now supports two-wire WS2801-based addressable RGB LEDs**
+  
+  * adds new **WS2801_LED** class
+  * uses SPI bus for optimal performance 
+  * includes the same `set()` and `Color()` methods used by HomeSpan's existing **Pixel** and **Dot** classes:
+  * adds a fully worked example of implementing a [25-pixel WS2801 RGB LED strand](https://www.adafruit.com/product/738) to HomeSpan's [Pixel](examples/Other%20Examples/Pixel) tutorial sketch
+  * see the [Pixels](docs/Pixels.md) page for complete documentation
 
 ### Updates and Corrections
 
-* **Updated OTA password storage to use SHA256 instead of MD5 hashing to conform with latest ArduinoOTA library protocol**
-  * for backwards compatibility with prior Cores, HomeSpan uses SHA256 hashing only if compiled under Core 3.3.2 or greater, else it continues to use MD5
-  * if you set your OTA password from within your sketch using `homeSpan.enableOTA(char *pwd)`, the new hashing will be automatic
-  * if instead you previously entered your password into the Serial Monitor using the "O" CLI command, you will need to re-enter it again so that HomeSpan can save it as SHA256
-    * if not re-entered, uploading OTA sketches using Core 3.3.2 or greater will still work, but a diagnostic message will warn you to migrate from MD5 to SHA256 hashing
-  * to facilitate the ability to set a password as a **hash** instead of **plain-text** from within a sketch, `homeSpan.enableOTA(char *pwd)` has been modified so that if *pwd* starts with "0x" followed by 64 hexidecimal characters, *pwd* will be interpreted as a SHA256 hash instead of plain-text and HomeSpan will store it directly instead of first hashing it
-    * specifying the hash of your OTA password inside a sketch is more secure than specifying the plain-text password
-    * useful for devices that cannot be readily connected to a Serial port, which prevents you from using the "O" CLI command to enter your OTA password
-
-* **Added new "c" CLI command that outputs to the Serial Monitor the same chip and sketch configuration information HomeSpan displays during initial start-up**
+* **Corrected begin/end block logic in Dot class for improved performance of DotStar RGB LEDs**
+* **Bumped minimum required version of Arduino-ESP32 Core from 3.1.0 to 3.3.0**
+  * reflects breaking changes that were previously introduced in HomeSpan 2.1.6
               
 See [Releases](https://github.com/HomeSpan/HomeSpan/releases) for details on all changes and bug fixes included in this update.
 
