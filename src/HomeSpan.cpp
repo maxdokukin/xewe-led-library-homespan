@@ -1004,7 +1004,6 @@ void Span::processSerialCommand(const char *c){
       nvs_commit(otaNVS);
       WiFi.begin("none");  
       LOG0("\n*** FACTORY RESET!  Restarting...\n\n");
-      reboot();
     }
     break;
 
